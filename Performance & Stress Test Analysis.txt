@@ -1,0 +1,70 @@
+Performance & Stress Test Analysis Report
+
+Tool: k6 Cloud
+
+Test Location: Columbus, US
+
+Test 1: Baseline Load (10 Virtual Users)
+Goal: Check how the system performs under normal, everyday conditions.
+
+Load: Constant 10 VUs for 30 seconds.
+
+Result: SUCCESS (Stable).
+
+Performance: The system handled all 183 requests perfectly.
+
+Metrics: * Failure Rate: 0% (Zero errors).
+
+Response Time (P95): 945 ms.
+
+Takeaway: At this level, the application is healthy. Everything works as expected, and users won't notice any issues.
+
+Test 2: Maximum Stress (100 Virtual Users)
+Goal: Push the system to the limit to see where it breaks.
+
+Load: Ramping up to 100 VUs over 2 minutes.
+
+Result: SYSTEM COLLAPSE (Critical Failure).
+
+Performance: As soon as the load increased, the system started rejecting almost every request. Out of 4,200 requests, 3,900 failed.
+
+Metrics:
+
+Failure Rate: 92.2%.
+
+Primary Error: HTTP 429 (Too Many Requests).
+
+Takeaway: The system crashed almost immediately. The "better" response time (537ms) is misleading—it's just the server very quickly telling users "Go away" (Error 429) instead of actually processing data.
+
+Test 3: Threshold Refinement (25 Virtual Users)
+Goal: Find the exact "sweet spot" where the system starts failing.
+
+Load: 25 VUs for 3 minutes.
+
+Result: POOR (Unstable).
+
+Performance: Even at this moderate load, the system struggled significantly. More than half of the requests failed.
+
+Metrics:
+
+Failure Rate: 59.3% (1.1k failures).
+
+Response Time (P95): 985 ms.
+
+Takeaway: This test proves that the "safe zone" for the current setup is very small. The system begins to fail long before reaching 25 concurrent users.
+
+Final Conclusion & Summary
+The Problem
+The application is hitting a Rate Limit bottleneck. The server or API Gateway is configured to block traffic once it exceeds a very low threshold (roughly 10-12 requests per second).
+
+The Impact
+The app can only support about 15 concurrent users safely. Anything above that leads to a massive amount of HTTP 429 errors, making the app unusable for most people.
+
+Recommendations
+Increase Rate Limits: If the server can handle more load, adjust the "Rate Limit" settings in the configuration.
+
+Infrastructure Scaling: If the limits are there to protect the database, we need to optimize queries or upgrade the server hardware.
+
+Client-side Handling: Update the frontend to handle "429 Too Many Requests" errors more gracefully (e.g., showing a "Please wait" message instead of a generic error).
+
+Would you like me to help you create a specific k6 test script to verify if your fixes work after you change the settings?
